@@ -33,6 +33,8 @@ func NewContainerDI(config Config) *ContainerDI {
 
 	container.db()
 	container.buildRepository()
+	container.buildService()
+	container.buildHandler()
 
 	return container
 }
