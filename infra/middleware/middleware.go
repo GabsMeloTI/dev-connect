@@ -23,7 +23,6 @@ func CheckAuthorization(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadGateway, err.Error())
 		}
-		c.Set("token_id", tokenPayload.ID)
 		c.Set("token_user_id", tokenPayload.UserID)
 		c.Set("token_user_name", tokenPayload.Username)
 		c.Set("token_email", tokenPayload.Email)
