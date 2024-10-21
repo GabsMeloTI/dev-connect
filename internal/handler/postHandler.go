@@ -65,7 +65,10 @@ func (h *Post) DeletePost(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	result := h.PostInterface.DeletePost(c.Request().Context(), int32(id))
+	err = h.PostInterface.DeletePost(c.Request().Context(), int32(id))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, "Success")
 }
