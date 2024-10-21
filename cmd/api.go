@@ -34,7 +34,7 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	post.GET("/list-all", container.HandlerPost.GetAllPosts)
 	post.POST("/create", container.HandlerPost.CreatePost)
 	post.PUT("/update", container.HandlerPost.UpdatePost)
-	post.DELETE("/delete", container.HandlerPost.DeletePost)
+	post.DELETE("/delete/:id", container.HandlerPost.DeletePost)
 
 	e.Logger.Fatal(e.Start(container.Config.ServerPort))
 }
