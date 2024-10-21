@@ -1,31 +1,39 @@
-# Build stage
-FROM golang:1.20-alpine AS builder
+# Etapa de Build
+FROM golang:1.23-alpine AS builder
+
+RUN apk add --no-cache git
 
 WORKDIR /app
 
-# Copia os arquivos de dependências
-COPY go.mod ./
-COPY go.sum ./
+COPY go.mod go.sum ./
 RUN go mod tidy
 
-# Copia o código-fonte e compila
-COPY . ./
-RUN go build -o main
+RUN go install github.com/swaggo/swag/cmd/swag@latest
 
-# Production stage
+COPY . .
+
+RUN swag init
+
+COPY db/migration /app/db/migration
+
+RUN go build -o main ./main.go
+
+# Etapa final
 FROM alpine:3.18
 
-# Cria uma pasta para o binário
+RUN apk add --no-cache ca-certificates curl
+
 WORKDIR /app
 
-# Copia o binário compilado da fase anterior
 COPY --from=builder /app/main /app/main
 
-# Permissões para o binário
+# Certifique-se de que as migrações sejam copiadas também
+COPY --from=builder /app/db/migration /app/db/migration
+
+COPY .env /app/.env
+
 RUN chmod +x /app/main
 
-# Exposição da porta usada pela aplicação
 EXPOSE 8000
 
-# Comando para executar a aplicação
 CMD ["/app/main"]

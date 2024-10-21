@@ -19,7 +19,7 @@ func runMigrations(conn *sql.DB, environment string) error {
 		return err
 	}
 
-	pwd, err := os.Getwd() // Verificar se há erro ao obter o diretório
+	pwd, err := os.Getwd()
 	if err != nil {
 		errConnection(environment, err)
 		return err
@@ -27,11 +27,10 @@ func runMigrations(conn *sql.DB, environment string) error {
 
 	migrationsPath := filepath.Join(pwd, "db/migration")
 
-	// Garantir que o caminho tenha barras normais
 	migrationsPath = strings.ReplaceAll(migrationsPath, "\\", "/")
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://"+migrationsPath, // Corrigindo a formatação da URL
+		"file:///app/db/migration",
 		"postgres", driver)
 	if err != nil {
 		errConnection(environment, err)
