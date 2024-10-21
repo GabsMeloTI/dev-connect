@@ -14,7 +14,6 @@ type PostRespose struct {
 	Likes     int32     `json:"likes"`
 	Shares    int32     `json:"shares"`
 	CreatedAt time.Time `json:"created_at"`
-	LastLogin time.Time `json:"last_login"`
 }
 
 type PostCreateDto struct {
