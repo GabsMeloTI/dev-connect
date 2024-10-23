@@ -26,11 +26,10 @@ func runMigrations(conn *sql.DB, environment string) error {
 	}
 
 	migrationsPath := filepath.Join(pwd, "db/migration")
-
 	migrationsPath = strings.ReplaceAll(migrationsPath, "\\", "/")
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file:///app/db/migration",
+		"file://"+migrationsPath,
 		"postgres", driver)
 	if err != nil {
 		errConnection(environment, err)
