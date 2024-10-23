@@ -42,5 +42,8 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	post.PUT("/update", container.HandlerPost.UpdatePost)
 	post.DELETE("/delete/:id", container.HandlerPost.DeletePost)
 
+	user := e.Group("/user")
+	user.GET("/list-all", container.HandlerUser.GetAllUsers)
+
 	e.Logger.Fatal(e.Start(container.Config.ServerPort))
 }

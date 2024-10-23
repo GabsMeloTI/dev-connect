@@ -18,6 +18,7 @@ type ContainerDI struct {
 	ServicePost    *service.Post
 	ServiceUser    *service.User
 	HandlerPost    *handler.Post
+	HandlerUser    *handler.User
 }
 
 type containerURL struct {
@@ -64,6 +65,6 @@ func (c *ContainerDI) buildService() {
 }
 
 func (c *ContainerDI) buildHandler() {
-	//c.HandlerUser = handler.NewUser(c.ServiceUser)
+	c.HandlerUser = handler.NewUser(c.ServiceUser)
 	c.HandlerPost = handler.NewPost(c.ServicePost)
 }

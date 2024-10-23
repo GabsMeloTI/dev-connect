@@ -1,5 +1,9 @@
 package model
 
+import (
+	db "treads/db/sqlc"
+)
+
 type UserResponse struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
@@ -30,4 +34,14 @@ type UserUpdateDto struct {
 
 type UserDeleteDto struct {
 	ID int64 `json:"id"`
+}
+
+func (p *UserResponse) ParseFromUserObject(result db.User) {
+	p.ID = result.ID
+	p.Name = result.Name
+	p.Username = result.Username
+	p.Email = result.Email
+	p.Password = result.Password
+	p.Bio = result.Bio.String
+	p.AvatarUrl = result.AvatarUrl.String
 }
