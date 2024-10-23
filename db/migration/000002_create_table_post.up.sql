@@ -5,5 +5,5 @@ CREATE TABLE "Post" (
                         image_url VARCHAR,
                         likes INT DEFAULT 0,
                         shares INT DEFAULT 0,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

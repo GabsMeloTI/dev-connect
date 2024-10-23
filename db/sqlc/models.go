@@ -6,6 +6,7 @@ package db
 
 import (
 	"database/sql"
+	"time"
 )
 
 type Follower struct {
@@ -32,7 +33,7 @@ type Post struct {
 	ImageUrl  sql.NullString `json:"image_url"`
 	Likes     sql.NullInt32  `json:"likes"`
 	Shares    sql.NullInt32  `json:"shares"`
-	CreatedAt sql.NullTime   `json:"created_at"`
+	CreatedAt time.Time      `json:"created_at"`
 }
 
 type Reply struct {

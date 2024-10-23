@@ -1,0 +1,13 @@
+-- -- name: CreateFollower :one
+-- INSERT INTO public."Follower"
+-- (id, follower_id, followed_id, created_at)
+-- VALUES(nextval('"Follower_id_seq"'::regclass), $1, $2, now());
+--     RETURNING *;
+--
+-- -- name: DeleteFollower :exec
+-- DELETE FROM public."Follower"
+-- WHERE id=$1;
+--
+-- -- name: GetAllFollowers :many
+-- SELECT id, follower_id, followed_id, created_at
+-- FROM public."Follower";

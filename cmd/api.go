@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"time"
@@ -11,6 +12,11 @@ import (
 
 func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	e := echo.New()
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"localhots:3000"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+	}))
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
