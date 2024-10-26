@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	db "treads/db/sqlc"
 )
 
@@ -26,6 +27,7 @@ type UserCreateDto struct {
 type UserUpdateDto struct {
 	ID        int64  `json:"id"`
 	Name      string `json:"name"`
+	Username  string `json:"username"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 	Bio       string `json:"bio"`
@@ -34,6 +36,43 @@ type UserUpdateDto struct {
 
 type UserDeleteDto struct {
 	ID int64 `json:"id"`
+}
+
+func (p *UserCreateDto) ParseCreateToUser() db.CreateUserParams {
+	arg := db.CreateUserParams{
+		Name:     p.Name,
+		Username: p.Username,
+		Email:    p.Email,
+		Password: p.Password,
+		Bio: sql.NullString{
+			String: p.Bio,
+			Valid:  true,
+		},
+		AvatarUrl: sql.NullString{
+			String: p.AvatarUrl,
+			Valid:  true,
+		},
+	}
+	return arg
+}
+
+func (p *UserUpdateDto) ParseUpdateToUser() db.UpdateUserParams {
+	arg := db.UpdateUserParams{
+		Name:     p.Name,
+		Username: p.Username,
+		Email:    p.Email,
+		Password: p.Password,
+		Bio: sql.NullString{
+			String: p.Bio,
+			Valid:  true,
+		},
+		AvatarUrl: sql.NullString{
+			String: p.AvatarUrl,
+			Valid:  true,
+		},
+		ID: p.ID,
+	}
+	return arg
 }
 
 func (p *UserResponse) ParseFromUserObject(result db.User) {
