@@ -5,8 +5,9 @@ import (
 )
 
 type PayloadDTO struct {
-	UserID       string    `json:"user_id"`
-	UserNickname string    `json:"user_nickname"`
-	ExpiryAt     time.Time `json:"expiry_at"`
-	Email        string    `json:"email"`
+	UserID   string    `json:"user_id"`
+	Name     string    `json:"name"`
+	Username string    `json:"username"`
+	Email    string    `json:"email"`
+	ExpiryAt time.Time `json:"expiry_at"`
 }

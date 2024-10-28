@@ -51,8 +51,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const deleteUser = `-- name: DeleteUser :exec
-UPDATE "User"
-SET active=false
+DELETE FROM public."User"
 WHERE id=$1
 `
 
@@ -61,14 +60,26 @@ func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	return err
 }
 
+const disableUser = `-- name: DisableUser :exec
+UPDATE "User"
+SET active=false
+WHERE id=$1
+`
+
+func (q *Queries) DisableUser(ctx context.Context, id int64) error {
+	_, err := q.db.ExecContext(ctx, disableUser, id)
+	return err
+}
+
 const getAllUsers = `-- name: GetAllUsers :many
 SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
 FROM "User"
-WHERE active = true
+WHERE active = true and username ILIKE '%' || $1 || '%'
+order by username
 `
 
-func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getAllUsers)
+func (q *Queries) GetAllUsers(ctx context.Context, dollar_1 sql.NullString) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getAllUsers, dollar_1)
 	if err != nil {
 		return nil, err
 	}
@@ -127,53 +138,30 @@ func (q *Queries) GetUserById(ctx context.Context, id int64) (User, error) {
 	return i, err
 }
 
-const getUsersByEmail = `-- name: GetUsersByEmail :one
-SELECT EXISTS(
-    SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
+const getUsersByUsernameOrEmail = `-- name: GetUsersByUsernameOrEmail :one
+SELECT EXISTS (
+    SELECT 1
     FROM public."User"
-    WHERE
-        active = true and
-        "name" = $1
+    WHERE active = true
+      AND (username = $1 OR email = $1)
 )
 `
 
-func (q *Queries) GetUsersByEmail(ctx context.Context, name string) (bool, error) {
-	row := q.db.QueryRowContext(ctx, getUsersByEmail, name)
+func (q *Queries) GetUsersByUsernameOrEmail(ctx context.Context, username string) (bool, error) {
+	row := q.db.QueryRowContext(ctx, getUsersByUsernameOrEmail, username)
 	var exists bool
 	err := row.Scan(&exists)
 	return exists, err
 }
 
-const getUsersByUsername = `-- name: GetUsersByUsername :one
-SELECT EXISTS(
-    SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
-    FROM public."User"
-    WHERE
-        active = true and
-        username = $1
-)
-`
-
-func (q *Queries) GetUsersByUsername(ctx context.Context, username string) (bool, error) {
-	row := q.db.QueryRowContext(ctx, getUsersByUsername, username)
-	var exists bool
-	err := row.Scan(&exists)
-	return exists, err
-}
-
-const getUsersLoginByEmail = `-- name: GetUsersLoginByEmail :one
+const getUsersLoginByEmailOrUsername = `-- name: GetUsersLoginByEmailOrUsername :one
 SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
 FROM public."User"
-WHERE active = true and email = $1 and "password" = $2
+WHERE active = true and email = $1 or username = $1
 `
 
-type GetUsersLoginByEmailParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func (q *Queries) GetUsersLoginByEmail(ctx context.Context, arg GetUsersLoginByEmailParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUsersLoginByEmail, arg.Email, arg.Password)
+func (q *Queries) GetUsersLoginByEmailOrUsername(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUsersLoginByEmailOrUsername, email)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -190,38 +178,25 @@ func (q *Queries) GetUsersLoginByEmail(ctx context.Context, arg GetUsersLoginByE
 	return i, err
 }
 
-const getUsersLoginByUsername = `-- name: GetUsersLoginByUsername :one
-SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
-FROM public."User"
-WHERE active = true and username = $1 and "password" = $2
+const updatePasswordByUserId = `-- name: UpdatePasswordByUserId :exec
+UPDATE "User"
+SET "password"=$2
+WHERE id=$1
 `
 
-type GetUsersLoginByUsernameParams struct {
-	Username string `json:"username"`
+type UpdatePasswordByUserIdParams struct {
+	ID       int64  `json:"id"`
 	Password string `json:"password"`
 }
 
-func (q *Queries) GetUsersLoginByUsername(ctx context.Context, arg GetUsersLoginByUsernameParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUsersLoginByUsername, arg.Username, arg.Password)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Username,
-		&i.Email,
-		&i.Password,
-		&i.Bio,
-		&i.AvatarUrl,
-		&i.Active,
-		&i.CreatedAt,
-		&i.LastLogin,
-	)
-	return i, err
+func (q *Queries) UpdatePasswordByUserId(ctx context.Context, arg UpdatePasswordByUserIdParams) error {
+	_, err := q.db.ExecContext(ctx, updatePasswordByUserId, arg.ID, arg.Password)
+	return err
 }
 
 const updateUser = `-- name: UpdateUser :one
 UPDATE "User"
-SET "name"=$2, email=$3, username=$4, "password"=$5, bio=$6, avatar_url=$7
+SET "name"=$2, email=$3, username=$4, bio=$5, avatar_url=$6
 WHERE id=$1
     RETURNING id, name, username, email, password, bio, avatar_url, active, created_at, last_login
 `
@@ -231,7 +206,6 @@ type UpdateUserParams struct {
 	Name      string         `json:"name"`
 	Email     string         `json:"email"`
 	Username  string         `json:"username"`
-	Password  string         `json:"password"`
 	Bio       sql.NullString `json:"bio"`
 	AvatarUrl sql.NullString `json:"avatar_url"`
 }
@@ -242,7 +216,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Name,
 		arg.Email,
 		arg.Username,
-		arg.Password,
 		arg.Bio,
 		arg.AvatarUrl,
 	)

@@ -5,29 +5,36 @@ VALUES(nextval('"User_id_seq"'::regclass), $1, $2, $3, $4, $5, $6, now(), true)
 
 -- name: UpdateUser :one
 UPDATE "User"
-SET "name"=$2, email=$3, username=$4, "password"=$5, bio=$6, avatar_url=$7
+SET "name"=$2, email=$3, username=$4, bio=$5, avatar_url=$6
 WHERE id=$1
     RETURNING *;
 
--- name: DeleteUser :exec
+-- name: UpdatePasswordByUserId :exec
+UPDATE "User"
+SET "password"=$2
+WHERE id=$1;
+
+-- name: DisableUser :exec
 UPDATE "User"
 SET active=false
 WHERE id=$1;
 
--- name: GetUsersLoginByEmail :one
-SELECT *
-FROM public."User"
-WHERE active = true and email = $1 and "password" = $2;
+-- name: DeleteUser :exec
+DELETE FROM public."User"
+WHERE id=$1;
 
--- name: GetUsersLoginByUsername :one
+-- name: GetUsersLoginByEmailOrUsername :one
 SELECT *
 FROM public."User"
-WHERE active = true and username = $1 and "password" = $2;
+WHERE active = true AND (email = $1 OR username = $1);
+
 
 -- name: GetAllUsers :many
 SELECT *
 FROM "User"
-WHERE active = true;
+WHERE active = true and username ILIKE '%' || $1 || '%'
+order by username;
+
 
 -- name: GetUserById :one
 SELECT *
@@ -36,20 +43,11 @@ WHERE
     active = true AND
     id = $1;
 
--- name: GetUsersByUsername :one
-SELECT EXISTS(
-    SELECT *
+-- name: GetUsersByUsernameOrEmail :one
+SELECT EXISTS (
+    SELECT 1
     FROM public."User"
-    WHERE
-        active = true and
-        username = $1
+    WHERE active = true
+      AND (username = $1 OR email = $1)
 );
 
--- name: GetUsersByEmail :one
-SELECT EXISTS(
-    SELECT *
-    FROM public."User"
-    WHERE
-        active = true and
-        "name" = $1
-);
