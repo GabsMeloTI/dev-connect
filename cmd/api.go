@@ -16,19 +16,9 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{
 			"http://localhost:3000",
-			"https://seu-front-na-aws.com",
+			"https://devconnect-z3dw.vercel.app/",
+			"https://rzsxmvcdsg.us-east-1.awsapprunner.com",
 		},
-		AllowMethods: []string{
-			echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS,
-		},
-		AllowHeaders: []string{
-			echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization,
-		},
-		AllowCredentials: true,
-	}))
-
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
 		AllowMethods: []string{
 			echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS,
 		},
