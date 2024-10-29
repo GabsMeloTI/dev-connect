@@ -14,8 +14,17 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	e := echo.New()
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"http://localhost:3000"},
-		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.DELETE},
+		AllowOrigins: []string{
+			"http://localhost:3000",
+			"https://seu-front-na-aws.com",
+		},
+		AllowMethods: []string{
+			echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization,
+		},
+		AllowCredentials: true,
 	}))
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
