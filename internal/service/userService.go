@@ -132,7 +132,7 @@ func (s *User) DeleteUser(ctx context.Context, id int64) error {
 }
 
 func (s *User) GetAllUsers(ctx context.Context, username string) ([]model.UserResponse, error) {
-	arg := sql.NullString{String: username, Valid: username != ""}
+	arg := sql.NullString{String: username, Valid: true}
 
 	results, err := s.UserInterface.GetAllUsers(ctx, arg)
 	if err != nil {
