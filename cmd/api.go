@@ -44,7 +44,7 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 
 	user := e.Group("/user")
 	user.GET("/list-all", container.HandlerUser.GetAllUsers)
-	user.GET("/login", container.HandlerUser.LoginUser)
+	user.POST("/login", container.HandlerUser.LoginUser)
 	user.POST("/create", container.HandlerUser.CreateUser)
 	user.PUT("/update", container.HandlerUser.UpdateUser)
 	user.PUT("/update/password", container.HandlerUser.UpdatePassword)
