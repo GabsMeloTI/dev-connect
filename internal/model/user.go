@@ -39,6 +39,8 @@ type LoginUserResponse struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	Username  string    `json:"username"`
+	Bio       string    `json:"bio"`
+	AvatarUrl string    `json:"avatar_url"`
 	Token     string    `json:"token"`
 	LastLogin time.Time `json:"last_login"`
 }

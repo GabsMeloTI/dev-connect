@@ -170,7 +170,7 @@ func (s *User) UserLogin(ctx context.Context, data model.LoginUserRequest) (mode
 	}
 
 	idStr := strconv.FormatInt(result.ID, 10)
-	tokenStr, err := maker.CreateToken(idStr, result.Username, result.Name, result.Email, 24*time.Hour)
+	tokenStr, err := maker.CreateToken(idStr, result.Username, result.Name, result.Email, result.Bio.String, result.AvatarUrl.String, 24*time.Hour)
 	if err != nil {
 		return model.LoginUserResponse{}, fmt.Errorf("token generation failed: %w", err)
 	}
@@ -180,6 +180,8 @@ func (s *User) UserLogin(ctx context.Context, data model.LoginUserRequest) (mode
 		Name:      result.Name,
 		Email:     result.Email,
 		Username:  result.Username,
+		Bio:       result.Bio.String,
+		AvatarUrl: result.AvatarUrl.String,
 		Token:     tokenStr,
 		LastLogin: time.Now(),
 	}, nil

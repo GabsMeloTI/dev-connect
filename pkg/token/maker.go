@@ -5,6 +5,6 @@ import (
 )
 
 type Maker interface {
-	CreateToken(userID, username, name, email string, duration time.Duration) (string, error)
+	CreateToken(userID, username, name, email, bio, avatar string, duration time.Duration) (string, error)
 	VerifyToken(token string) (*Payload, error)
 }

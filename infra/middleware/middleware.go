@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"treads/infra/token"
+	"treads/pkg/token"
 )
 
 func CheckAuthorization(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
@@ -26,6 +26,8 @@ func CheckAuthorization(handlerFunc echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("token_user_id", tokenPayload.UserID)
 		c.Set("token_user_name", tokenPayload.Username)
 		c.Set("token_email", tokenPayload.Email)
+		c.Set("token_bio", tokenPayload.Bio)
+		c.Set("token_avatar", tokenPayload.Avatar)
 		c.Set("token_expiry_at", tokenPayload.ExpiredAt)
 
 		return handlerFunc(c)

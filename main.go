@@ -16,4 +16,5 @@ func main() {
 	container := infra.NewContainerDI(loadingEnv)
 
 	cmd.StartAPI(ctx, container)
+
 }
