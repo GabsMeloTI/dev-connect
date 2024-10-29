@@ -27,6 +27,17 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 		AllowCredentials: true,
 	}))
 
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{
+			echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization,
+		},
+		AllowCredentials: true,
+	}))
+
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	go func() {
