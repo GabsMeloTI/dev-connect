@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 	"treads/internal/helper"
@@ -47,7 +48,6 @@ func (s *User) CreateUser(ctx context.Context, data model.UserCreateDto) (model.
 	data.Password = hashedPassword
 
 	arg := data.ParseCreateToUser()
-
 	result, err := s.UserInterface.CreateUser(ctx, arg)
 	if err != nil {
 		return model.UserResponse{}, err
@@ -151,21 +151,28 @@ func (s *User) GetAllUsers(ctx context.Context, username string) ([]model.UserRe
 
 func (s *User) UserLogin(ctx context.Context, data model.LoginUserRequest) (model.LoginUserResponse, error) {
 	result, err := s.UserInterface.GetUsersLoginByEmailOrUsername(ctx, data.Email)
-	if errors.Is(err, sql.ErrNoRows) || !crypt.CheckPasswordHash(data.Password, result.Password) {
-		return model.LoginUserResponse{}, errors.New("invalid credentials")
-	} else if err != nil {
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.LoginUserResponse{}, errors.New("invalid credentials")
+		}
 		return model.LoginUserResponse{}, err
 	}
 
-	maker, err := token.NewPasetoMaker(helper.GetSignatureString())
+	if !crypt.CheckPasswordHash(data.Password, result.Password) {
+		return model.LoginUserResponse{}, errors.New("invalid credentials")
+	}
+
+	symetricKey := helper.GetSignatureString()
+
+	maker, err := token.NewPasetoMaker(symetricKey)
 	if err != nil {
-		return model.LoginUserResponse{}, err
+		return model.LoginUserResponse{}, fmt.Errorf("token creation error: %w", err)
 	}
 
 	idStr := strconv.FormatInt(result.ID, 10)
 	tokenStr, err := maker.CreateToken(idStr, result.Username, result.Name, result.Email, 24*time.Hour)
 	if err != nil {
-		return model.LoginUserResponse{}, err
+		return model.LoginUserResponse{}, fmt.Errorf("token generation failed: %w", err)
 	}
 
 	return model.LoginUserResponse{

@@ -50,7 +50,7 @@ func (r *User) UpdatePassword(ctx context.Context, arg db.UpdatePasswordByUserId
 }
 
 func (r *User) DisableUser(ctx context.Context, id int64) error {
-	return r.Queries.DeleteUser(ctx, id)
+	return r.Queries.DisableUser(ctx, id)
 }
 
 func (r *User) DeleteUser(ctx context.Context, id int64) error {

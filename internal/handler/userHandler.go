@@ -89,7 +89,7 @@ func (h *User) DisableUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, "Usuário deletado com sucesso!")
+	return c.JSON(http.StatusOK, "Usuário desabilitado com sucesso!")
 }
 
 func (h *User) DeleteUser(c echo.Context) error {
