@@ -45,14 +45,6 @@ func (p *PostCreateDto) ParseCreateToPost() db.CreatePostParams {
 			String: p.ImageUrl,
 			Valid:  true,
 		},
-		Likes: sql.NullInt32{
-			Int32: p.Likes,
-			Valid: true,
-		},
-		Shares: sql.NullInt32{
-			Int32: p.Shares,
-			Valid: true,
-		},
 	}
 	return arg
 }

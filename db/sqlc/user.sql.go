@@ -157,7 +157,7 @@ func (q *Queries) GetUsersByUsernameOrEmail(ctx context.Context, username string
 const getUsersLoginByEmailOrUsername = `-- name: GetUsersLoginByEmailOrUsername :one
 SELECT id, name, username, email, password, bio, avatar_url, active, created_at, last_login
 FROM public."User"
-WHERE active = true and email = $1 or username = $1
+WHERE active = true AND (email = $1 OR username = $1)
 `
 
 func (q *Queries) GetUsersLoginByEmailOrUsername(ctx context.Context, email string) (User, error) {

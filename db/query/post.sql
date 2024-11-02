@@ -1,7 +1,7 @@
 -- name: CreatePost :one
 INSERT INTO public."Post"
 (id, user_id, "content", image_url, likes, shares, created_at, archive)
-VALUES(nextval('"Post_id_seq"'::regclass), $1, $2, $3, $4, $5, now(), false)
+VALUES(nextval('"Post_id_seq"'::regclass), $1, $2, $3, 0, 0, now(), false)
     RETURNING *;
 
 -- name: UpdatePost :one

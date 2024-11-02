@@ -10,6 +10,7 @@ import (
 	"treads/internal/helper"
 	"treads/internal/model"
 	"treads/internal/repository"
+	"treads/pkg/aws"
 	"treads/pkg/crypt"
 	"treads/pkg/token"
 )
@@ -26,10 +27,11 @@ type UserInterface interface {
 
 type User struct {
 	UserInterface repository.UserInterface
+	SESClient     *aws.SESClient
 }
 
-func NewUser(UserInterface repository.UserInterface) *User {
-	return &User{UserInterface: UserInterface}
+func NewUser(UserInterface repository.UserInterface, sesClient *aws.SESClient) *User {
+	return &User{UserInterface: UserInterface, SESClient: sesClient}
 }
 
 func (s *User) CreateUser(ctx context.Context, data model.UserCreateDto) (model.UserResponse, error) {

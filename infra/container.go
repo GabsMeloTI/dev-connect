@@ -7,12 +7,14 @@ import (
 	"treads/internal/handler"
 	"treads/internal/repository"
 	"treads/internal/service"
+	"treads/pkg/aws"
 )
 
 type ContainerDI struct {
 	Config         Config
 	ContainerURL   containerURL
 	ConnDB         *sql.DB
+	SESClient      *aws.SESClient
 	RepositoryPost *repository.Post
 	RepositoryUser *repository.User
 	ServicePost    *service.Post
@@ -33,6 +35,7 @@ func NewContainerDI(config Config) *ContainerDI {
 	container := &ContainerDI{Config: config}
 
 	container.db()
+	container.aws()
 	container.buildRepository()
 	container.buildService()
 	container.buildHandler()
@@ -54,13 +57,18 @@ func (c *ContainerDI) db() {
 	c.ConnDB = db_postgresql.ConnDB(&dbConfig, true)
 }
 
+func (c *ContainerDI) aws() {
+	region := c.Config.AWSRegion
+	c.SESClient = aws.NewSESClient(region)
+}
+
 func (c *ContainerDI) buildRepository() {
 	c.RepositoryUser = repository.NewUser(c.ConnDB)
 	c.RepositoryPost = repository.NewPost(c.ConnDB)
 }
 
 func (c *ContainerDI) buildService() {
-	c.ServiceUser = service.NewUser(c.RepositoryUser)
+	c.ServiceUser = service.NewUser(c.RepositoryUser, c.SESClient)
 	c.ServicePost = service.NewPost(c.RepositoryPost)
 }
 

@@ -9,6 +9,15 @@ import (
 	"time"
 )
 
+type Comment struct {
+	ID        int64         `json:"id"`
+	UserID    int64         `json:"user_id"`
+	PostID    int64         `json:"post_id"`
+	Content   string        `json:"content"`
+	Likes     sql.NullInt64 `json:"likes"`
+	CreatedAt sql.NullTime  `json:"created_at"`
+}
+
 type Follower struct {
 	ID         int32         `json:"id"`
 	FollowerID sql.NullInt32 `json:"follower_id"`

@@ -24,7 +24,7 @@ func (q *Queries) ArchivePost(ctx context.Context, id int32) error {
 const createPost = `-- name: CreatePost :one
 INSERT INTO public."Post"
 (id, user_id, "content", image_url, likes, shares, created_at, archive)
-VALUES(nextval('"Post_id_seq"'::regclass), $1, $2, $3, $4, $5, now(), false)
+VALUES(nextval('"Post_id_seq"'::regclass), $1, $2, $3, 0, 0, now(), false)
     RETURNING id, user_id, content, image_url, likes, shares, created_at
 `
 
@@ -32,18 +32,10 @@ type CreatePostParams struct {
 	UserID   sql.NullInt32  `json:"user_id"`
 	Content  string         `json:"content"`
 	ImageUrl sql.NullString `json:"image_url"`
-	Likes    sql.NullInt32  `json:"likes"`
-	Shares   sql.NullInt32  `json:"shares"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
-	row := q.db.QueryRowContext(ctx, createPost,
-		arg.UserID,
-		arg.Content,
-		arg.ImageUrl,
-		arg.Likes,
-		arg.Shares,
-	)
+	row := q.db.QueryRowContext(ctx, createPost, arg.UserID, arg.Content, arg.ImageUrl)
 	var i Post
 	err := row.Scan(
 		&i.ID,

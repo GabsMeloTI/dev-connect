@@ -20,6 +20,7 @@ type Config struct {
 	QueueTopic     string
 	SignatureToken string
 	DBDatabaseSP   string
+	AWSRegion      string
 }
 
 func NewConfig() Config {
@@ -44,5 +45,6 @@ func NewConfig() Config {
 		QueueTopic:     os.Getenv("QUEUE_TOPIC"),
 		SignatureToken: os.Getenv("SIGNATURE_STRING"),
 		DBDatabaseSP:   os.Getenv("DB_DATABASE_SP"),
+		AWSRegion:      os.Getenv("AWS_REGION"),
 	}
 }
