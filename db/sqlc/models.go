@@ -19,25 +19,25 @@ type Comment struct {
 }
 
 type Follower struct {
-	ID         int32         `json:"id"`
-	FollowerID sql.NullInt32 `json:"follower_id"`
-	FollowedID sql.NullInt32 `json:"followed_id"`
+	ID         int64         `json:"id"`
+	FollowerID sql.NullInt64 `json:"follower_id"`
+	FollowedID sql.NullInt64 `json:"followed_id"`
 	CreatedAt  sql.NullTime  `json:"created_at"`
 }
 
 type Like struct {
-	ID        int32         `json:"id"`
-	UserID    sql.NullInt32 `json:"user_id"`
-	PostID    sql.NullInt32 `json:"post_id"`
-	CommentID sql.NullInt32 `json:"comment_id"`
-	ReplyID   sql.NullInt32 `json:"reply_id"`
+	ID        int64         `json:"id"`
+	UserID    sql.NullInt64 `json:"user_id"`
+	PostID    sql.NullInt64 `json:"post_id"`
+	CommentID sql.NullInt64 `json:"comment_id"`
+	ReplyID   sql.NullInt64 `json:"reply_id"`
 	Type      string        `json:"type"`
 	CreatedAt sql.NullTime  `json:"created_at"`
 }
 
 type Post struct {
-	ID        int32          `json:"id"`
-	UserID    sql.NullInt32  `json:"user_id"`
+	ID        int64          `json:"id"`
+	UserID    int64          `json:"user_id"`
 	Content   string         `json:"content"`
 	ImageUrl  sql.NullString `json:"image_url"`
 	Likes     sql.NullInt32  `json:"likes"`
@@ -46,9 +46,9 @@ type Post struct {
 }
 
 type Reply struct {
-	ID        int32         `json:"id"`
-	UserID    sql.NullInt32 `json:"user_id"`
-	CommentID sql.NullInt32 `json:"comment_id"`
+	ID        int64         `json:"id"`
+	UserID    sql.NullInt64 `json:"user_id"`
+	CommentID sql.NullInt64 `json:"comment_id"`
 	Content   string        `json:"content"`
 	Likes     sql.NullInt32 `json:"likes"`
 	CreatedAt sql.NullTime  `json:"created_at"`

@@ -16,7 +16,7 @@ SET archive=true
 WHERE id=$1
 `
 
-func (q *Queries) ArchivePost(ctx context.Context, id int32) error {
+func (q *Queries) ArchivePost(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, archivePost, id)
 	return err
 }
@@ -29,7 +29,7 @@ VALUES(nextval('"Post_id_seq"'::regclass), $1, $2, $3, 0, 0, now(), false)
 `
 
 type CreatePostParams struct {
-	UserID   sql.NullInt32  `json:"user_id"`
+	UserID   int64          `json:"user_id"`
 	Content  string         `json:"content"`
 	ImageUrl sql.NullString `json:"image_url"`
 }
@@ -54,7 +54,7 @@ DELETE FROM public."Post"
 WHERE id=$1
 `
 
-func (q *Queries) DeletePost(ctx context.Context, id int32) error {
+func (q *Queries) DeletePost(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deletePost, id)
 	return err
 }
@@ -95,6 +95,43 @@ func (q *Queries) GetAllPosts(ctx context.Context) ([]Post, error) {
 	return items, nil
 }
 
+const getAllPostsByUser = `-- name: GetAllPostsByUser :many
+SELECT id, user_id, content, image_url, likes, shares, created_at
+FROM "Post"
+WHERE user_id=$1
+`
+
+func (q *Queries) GetAllPostsByUser(ctx context.Context, userID int64) ([]Post, error) {
+	rows, err := q.db.QueryContext(ctx, getAllPostsByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Post
+	for rows.Next() {
+		var i Post
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Content,
+			&i.ImageUrl,
+			&i.Likes,
+			&i.Shares,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePost = `-- name: UpdatePost :one
 UPDATE public."Post"
 SET "content"=$2, image_url=$3
@@ -103,7 +140,7 @@ WHERE id=$1
 `
 
 type UpdatePostParams struct {
-	ID       int32          `json:"id"`
+	ID       int64          `json:"id"`
 	Content  string         `json:"content"`
 	ImageUrl sql.NullString `json:"image_url"`
 }
