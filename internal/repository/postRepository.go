@@ -10,7 +10,8 @@ type PostInterface interface {
 	GetAllPosts(context.Context) ([]db.Post, error)
 	CreatePost(context.Context, db.CreatePostParams) (db.Post, error)
 	UpdatePost(context.Context, db.UpdatePostParams) (db.Post, error)
-	DeletePost(context.Context, int32) error
+	DeletePost(context.Context, int64) error
+	GetAllPostsByUser(context.Context, int64) ([]db.Post, error)
 }
 
 type Post struct {
@@ -40,6 +41,10 @@ func (r *Post) UpdatePost(ctx context.Context, arg db.UpdatePostParams) (db.Post
 	return r.Queries.UpdatePost(ctx, arg)
 }
 
-func (r *Post) DeletePost(ctx context.Context, id int32) error {
+func (r *Post) DeletePost(ctx context.Context, id int64) error {
 	return r.Queries.DeletePost(ctx, id)
+}
+
+func (r *Post) GetAllPostsByUser(ctx context.Context, arg int64) ([]db.Post, error) {
+	return r.Queries.GetAllPostsByUser(ctx, arg)
 }

@@ -3,9 +3,9 @@ package handler
 import (
 	"github.com/labstack/echo/v4"
 	"net/http"
-	"strconv"
 	"treads/internal/model"
 	"treads/internal/service"
+	"treads/validation"
 )
 
 type Post struct {
@@ -17,7 +17,7 @@ func NewPost(PostInterface service.PostInterface) *Post {
 }
 
 func (h *Post) GetAllPosts(c echo.Context) error {
-	var request model.PostRespose
+	var request model.PostResponse
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -60,15 +60,30 @@ func (h *Post) UpdatePost(c echo.Context) error {
 
 func (h *Post) DeletePost(c echo.Context) error {
 	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
+	id, err := validation.ParseStringToInt64(idStr)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = h.PostInterface.DeletePost(c.Request().Context(), int32(id))
+	err = h.PostInterface.DeletePost(c.Request().Context(), id)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, "Success")
+}
+
+func (h *Post) GetAllPostsByUser(c echo.Context) error {
+	idStr := c.Param("id")
+	id, err := validation.ParseStringToInt64(idStr)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := h.PostInterface.GetAllPostByUser(c.Request().Context(), id)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
 }

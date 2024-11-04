@@ -6,9 +6,9 @@ import (
 	db "treads/db/sqlc"
 )
 
-type PostRespose struct {
-	ID        int32     `json:"id"`
-	UserID    int32     `json:"user_id"`
+type PostResponse struct {
+	ID        int64     `json:"id"`
+	UserID    int64     `json:"user_id"`
 	Content   string    `json:"content"`
 	ImageUrl  string    `json:"image_url"`
 	Likes     int32     `json:"likes"`
@@ -17,7 +17,7 @@ type PostRespose struct {
 }
 
 type PostCreateDto struct {
-	UserID   int32  `json:"user_id"`
+	UserID   int64  `json:"user_id"`
 	Content  string `json:"content"`
 	ImageUrl string `json:"image_url"`
 	Likes    int32  `json:"likes"`
@@ -25,21 +25,18 @@ type PostCreateDto struct {
 }
 
 type PostUpdateDto struct {
-	ID       int32  `json:"id"`
+	ID       int64  `json:"id"`
 	Content  string `json:"content"`
 	ImageUrl string `json:"image_url"`
 }
 
 type PostDeleteDto struct {
-	ID int32 `json:"id"`
+	ID int64 `json:"id"`
 }
 
 func (p *PostCreateDto) ParseCreateToPost() db.CreatePostParams {
 	arg := db.CreatePostParams{
-		UserID: sql.NullInt32{
-			Int32: p.UserID,
-			Valid: true,
-		},
+		UserID:  p.UserID,
 		Content: p.Content,
 		ImageUrl: sql.NullString{
 			String: p.ImageUrl,
@@ -61,9 +58,9 @@ func (p *PostUpdateDto) ParseUpdateToPost() db.UpdatePostParams {
 	return arg
 }
 
-func (p *PostRespose) ParseFromPostObject(result db.Post) {
+func (p *PostResponse) ParseFromPostObject(result db.Post) {
 	p.ID = result.ID
-	p.UserID = result.UserID.Int32
+	p.UserID = result.UserID
 	p.Content = result.Content
 	p.ImageUrl = result.ImageUrl.String
 	p.Likes = result.Likes.Int32
