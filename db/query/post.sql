@@ -22,3 +22,8 @@ WHERE id=$1;
 -- name: GetAllPosts :many
 SELECT *
 FROM "Post";
+
+-- name: GetAllPostsByUser :many
+SELECT *
+FROM "Post"
+WHERE user_id=$1;
