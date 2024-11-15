@@ -23,6 +23,7 @@ type CommentCreateDto struct {
 type CommentUpdateDto struct {
 	ID      int64  `json:"id"`
 	Content string `json:"content"`
+	UserID  int64  `json:"user_id"`
 }
 
 type CommentDeleteDto struct {
@@ -44,6 +45,7 @@ func (p *CommentUpdateDto) ParseUpdateToComment() db.UpdateCommentParams {
 	arg := db.UpdateCommentParams{
 		ID:      p.ID,
 		Content: p.Content,
+		UserID:  p.UserID,
 	}
 	return arg
 }

@@ -74,7 +74,7 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	comment := e.Group("/comment")
 	comment.GET("/list-all", container.HandlerComment.GetAllComments)
 	comment.POST("/create", container.HandlerComment.CreateComment)
-	comment.PUT("/update", container.HandlerComment.UpdateComment)
+	comment.PUT("/update/:id", container.HandlerComment.UpdateComment)
 	comment.DELETE("/delete/:id", container.HandlerComment.DeleteComment)
 	comment.PUT("/increment-like/:id", container.HandlerComment.IncrementLikes)
 	comment.PUT("/decrement-like/:id", container.HandlerComment.DecrementLikes)
