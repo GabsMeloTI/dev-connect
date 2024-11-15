@@ -7,7 +7,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createComment = `-- name: CreateComment :one
@@ -37,23 +36,59 @@ func (q *Queries) CreateComment(ctx context.Context, arg CreateCommentParams) (C
 	return i, err
 }
 
-const deleteComment = `-- name: DeleteComment :exec
-DELETE FROM public."Comment"
-WHERE id=$1
+const decrementCommentLikes = `-- name: DecrementCommentLikes :one
+UPDATE public."Comment"
+SET likes = likes - 1
+WHERE id=$1 AND likes > 0
+    RETURNING id, user_id, post_id, content, likes, created_at
 `
 
-func (q *Queries) DeleteComment(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteComment, id)
+func (q *Queries) DecrementCommentLikes(ctx context.Context, id int64) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, decrementCommentLikes, id)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PostID,
+		&i.Content,
+		&i.Likes,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const deleteComment = `-- name: DeleteComment :exec
+DELETE FROM public."Comment"
+WHERE id=$1 and user_id=$2 and post_id=$3
+`
+
+type DeleteCommentParams struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+	PostID int64 `json:"post_id"`
+}
+
+func (q *Queries) DeleteComment(ctx context.Context, arg DeleteCommentParams) error {
+	_, err := q.db.ExecContext(ctx, deleteComment, arg.ID, arg.UserID, arg.PostID)
 	return err
 }
 
 const getAllComments = `-- name: GetAllComments :many
 SELECT id, user_id, post_id, content, likes, created_at
 FROM "Comment"
+WHERE post_id=$1
+ORDER BY created_at DESC
+    LIMIT $2 OFFSET $3
 `
 
-func (q *Queries) GetAllComments(ctx context.Context) ([]Comment, error) {
-	rows, err := q.db.QueryContext(ctx, getAllComments)
+type GetAllCommentsParams struct {
+	PostID int64 `json:"post_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetAllComments(ctx context.Context, arg GetAllCommentsParams) ([]Comment, error) {
+	rows, err := q.db.QueryContext(ctx, getAllComments, arg.PostID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -82,20 +117,14 @@ func (q *Queries) GetAllComments(ctx context.Context) ([]Comment, error) {
 	return items, nil
 }
 
-const updateComment = `-- name: UpdateComment :one
-UPDATE public."Comment"
-SET "content"=$2
-WHERE id=$1
-    RETURNING id, user_id, post_id, content, likes, created_at
+const getCommentByID = `-- name: GetCommentByID :one
+SELECT id, user_id, post_id, content, likes, created_at
+FROM public."Comment"
+WHERE id = $1
 `
 
-type UpdateCommentParams struct {
-	ID      int64  `json:"id"`
-	Content string `json:"content"`
-}
-
-func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (Comment, error) {
-	row := q.db.QueryRowContext(ctx, updateComment, arg.ID, arg.Content)
+func (q *Queries) GetCommentByID(ctx context.Context, id int64) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, getCommentByID, id)
 	var i Comment
 	err := row.Scan(
 		&i.ID,
@@ -108,20 +137,42 @@ func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (C
 	return i, err
 }
 
-const updateCommentLikes = `-- name: UpdateCommentLikes :one
+const incrementCommentLikes = `-- name: IncrementCommentLikes :one
 UPDATE public."Comment"
-SET likes=$2
+SET likes = likes + 1
 WHERE id=$1
     RETURNING id, user_id, post_id, content, likes, created_at
 `
 
-type UpdateCommentLikesParams struct {
-	ID    int64         `json:"id"`
-	Likes sql.NullInt64 `json:"likes"`
+func (q *Queries) IncrementCommentLikes(ctx context.Context, id int64) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, incrementCommentLikes, id)
+	var i Comment
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.PostID,
+		&i.Content,
+		&i.Likes,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
-func (q *Queries) UpdateCommentLikes(ctx context.Context, arg UpdateCommentLikesParams) (Comment, error) {
-	row := q.db.QueryRowContext(ctx, updateCommentLikes, arg.ID, arg.Likes)
+const updateComment = `-- name: UpdateComment :one
+UPDATE public."Comment"
+SET "content"=$2
+WHERE id=$1 AND user_id=$3
+    RETURNING id, user_id, post_id, content, likes, created_at
+`
+
+type UpdateCommentParams struct {
+	ID      int64  `json:"id"`
+	Content string `json:"content"`
+	UserID  int64  `json:"user_id"`
+}
+
+func (q *Queries) UpdateComment(ctx context.Context, arg UpdateCommentParams) (Comment, error) {
+	row := q.db.QueryRowContext(ctx, updateComment, arg.ID, arg.Content, arg.UserID)
 	var i Comment
 	err := row.Scan(
 		&i.ID,

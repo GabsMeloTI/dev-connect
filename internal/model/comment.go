@@ -1,7 +1,6 @@
 package model
 
 import (
-	"database/sql"
 	"time"
 	db "treads/db/sqlc"
 )
@@ -26,9 +25,10 @@ type CommentUpdateDto struct {
 	Content string `json:"content"`
 }
 
-type CommentUpdateLikesDto struct {
-	ID    int64 `json:"id"`
-	Likes int64 `json:"likes"`
+type CommentDeleteDto struct {
+	ID     int64 `json:"id"`
+	UserID int64 `json:"user_id"`
+	PostID int64 `json:"post_id"`
 }
 
 func (p *CommentCreateDto) ParseCreateToComment() db.CreateCommentParams {
@@ -48,13 +48,11 @@ func (p *CommentUpdateDto) ParseUpdateToComment() db.UpdateCommentParams {
 	return arg
 }
 
-func (p *CommentUpdateLikesDto) ParseUpdateToCommentLike() db.UpdateCommentLikesParams {
-	arg := db.UpdateCommentLikesParams{
-		ID: p.ID,
-		Likes: sql.NullInt64{
-			Int64: p.Likes,
-			Valid: true,
-		},
+func (p *CommentDeleteDto) ParseDeleteToComment() db.DeleteCommentParams {
+	arg := db.DeleteCommentParams{
+		ID:     p.ID,
+		UserID: p.UserID,
+		PostID: p.PostID,
 	}
 	return arg
 }

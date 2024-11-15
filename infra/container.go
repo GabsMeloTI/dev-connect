@@ -11,16 +11,19 @@ import (
 )
 
 type ContainerDI struct {
-	Config         Config
-	ContainerURL   containerURL
-	ConnDB         *sql.DB
-	SESClient      *aws.SESClient
-	RepositoryPost *repository.Post
-	RepositoryUser *repository.User
-	ServicePost    *service.Post
-	ServiceUser    *service.User
-	HandlerPost    *handler.Post
-	HandlerUser    *handler.User
+	Config            Config
+	ContainerURL      containerURL
+	ConnDB            *sql.DB
+	SESClient         *aws.SESClient
+	RepositoryPost    *repository.Post
+	RepositoryUser    *repository.User
+	RepositoryComment *repository.Comment
+	ServiceComment    *service.Comment
+	HandlerComment    *handler.Comment
+	ServicePost       *service.Post
+	ServiceUser       *service.User
+	HandlerPost       *handler.Post
+	HandlerUser       *handler.User
 }
 
 type containerURL struct {
@@ -65,14 +68,18 @@ func (c *ContainerDI) aws() {
 func (c *ContainerDI) buildRepository() {
 	c.RepositoryUser = repository.NewUser(c.ConnDB)
 	c.RepositoryPost = repository.NewPost(c.ConnDB)
+	c.RepositoryComment = repository.NewComment(c.ConnDB)
+
 }
 
 func (c *ContainerDI) buildService() {
 	c.ServiceUser = service.NewUser(c.RepositoryUser, c.SESClient)
 	c.ServicePost = service.NewPost(c.RepositoryPost)
+	c.ServiceComment = service.NewComment(c.RepositoryComment)
 }
 
 func (c *ContainerDI) buildHandler() {
 	c.HandlerUser = handler.NewUser(c.ServiceUser)
 	c.HandlerPost = handler.NewPost(c.ServicePost)
+	c.HandlerComment = handler.NewComment(c.ServiceComment)
 }

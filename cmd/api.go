@@ -71,5 +71,13 @@ func StartAPI(ctx context.Context, container *infra.ContainerDI) {
 	user.PUT("/disable/:id", container.HandlerUser.DisableUser)
 	user.DELETE("/delete/:id", container.HandlerUser.DeleteUser)
 
+	comment := e.Group("/comment")
+	comment.GET("/list-all", container.HandlerComment.GetAllComments)
+	comment.POST("/create", container.HandlerComment.CreateComment)
+	comment.PUT("/update", container.HandlerComment.UpdateComment)
+	comment.DELETE("/delete/:id", container.HandlerComment.DeleteComment)
+	comment.PUT("/increment-like/:id", container.HandlerComment.IncrementLikes)
+	comment.PUT("/decrement-like/:id", container.HandlerComment.DecrementLikes)
+
 	e.Logger.Fatal(e.Start(container.Config.ServerPort))
 }
