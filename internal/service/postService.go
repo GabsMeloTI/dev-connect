@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	db "treads/db/sqlc"
 	"treads/internal/model"
 	"treads/internal/repository"
 )
@@ -10,8 +11,8 @@ type PostInterface interface {
 	CreatePost(context.Context, model.PostCreateDto) (model.PostResponse, error)
 	UpdatePost(context.Context, model.PostUpdateDto) (model.PostResponse, error)
 	DeletePost(context.Context, int64) error
-	GetAllPost(context.Context) ([]model.PostResponse, error)
-	GetAllPostByUser(context.Context, int64) ([]model.PostResponse, error)
+	GetAllPost(context.Context) ([]model.PostData, error)
+	GetAllPostByUser(context.Context, int64) ([]model.PostData, error)
 }
 
 type Post struct {
@@ -22,16 +23,16 @@ func NewPost(PostInterface repository.PostInterface) *Post {
 	return &Post{PostInterface: PostInterface}
 }
 
-func (s *Post) GetAllPost(ctx context.Context) ([]model.PostResponse, error) {
+func (s *Post) GetAllPost(ctx context.Context) ([]model.PostData, error) {
 	results, err := s.PostInterface.GetAllPosts(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	getAllPost := model.PostResponse{}
-	var postsResponse []model.PostResponse
+	getAllPost := model.PostData{}
+	var postsResponse []model.PostData
 	for _, result := range results {
-		getAllPost.ParseFromPostObject(result)
+		getAllPost.ParseFromPostData(result)
 		postsResponse = append(postsResponse, getAllPost)
 	}
 
@@ -74,16 +75,16 @@ func (s *Post) DeletePost(ctx context.Context, id int64) error {
 	return nil
 }
 
-func (s *Post) GetAllPostByUser(ctx context.Context, id int64) ([]model.PostResponse, error) {
+func (s *Post) GetAllPostByUser(ctx context.Context, id int64) ([]model.PostData, error) {
 	results, err := s.PostInterface.GetAllPostsByUser(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	var postsResponse []model.PostResponse
+	var postsResponse []model.PostData
 	for _, result := range results {
-		var post model.PostResponse
-		post.ParseFromPostObject(result)
+		var post model.PostData
+		post.ParseFromPostData(db.GetAllPostsRow(result))
 		postsResponse = append(postsResponse, post)
 	}
 

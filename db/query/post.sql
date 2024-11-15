@@ -20,10 +20,33 @@ DELETE FROM public."Post"
 WHERE id=$1;
 
 -- name: GetAllPosts :many
-SELECT *
-FROM "Post";
+SELECT p.id,
+       p."content",
+       p.image_url,
+       p.likes,
+       p.shares,
+       p.created_at,
+       p.archive,
+       p.user_id,
+       u.name,
+       u.avatar_url
+FROM "Post" p
+         INNER JOIN "User" u ON u.id = p.user_id
+WHERE p.archive = true;
+
 
 -- name: GetAllPostsByUser :many
-SELECT *
-FROM "Post"
+SELECT
+    p.id,
+    p."content",
+    p.image_url,
+    p.likes,
+    p.shares,
+    p.created_at,
+    p.archive,
+    p.user_id,
+    u.name,
+    u.avatar_url
+FROM "Post" p
+    INNER JOIN "User" u ON u.id = p.user_id
 WHERE user_id=$1;

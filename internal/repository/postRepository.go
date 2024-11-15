@@ -7,11 +7,11 @@ import (
 )
 
 type PostInterface interface {
-	GetAllPosts(context.Context) ([]db.Post, error)
+	GetAllPosts(context.Context) ([]db.GetAllPostsRow, error)
 	CreatePost(context.Context, db.CreatePostParams) (db.Post, error)
 	UpdatePost(context.Context, db.UpdatePostParams) (db.Post, error)
 	DeletePost(context.Context, int64) error
-	GetAllPostsByUser(context.Context, int64) ([]db.Post, error)
+	GetAllPostsByUser(context.Context, int64) ([]db.GetAllPostsByUserRow, error)
 }
 
 type Post struct {
@@ -29,7 +29,7 @@ func NewPost(sqlDB *sql.DB) *Post {
 	}
 }
 
-func (r *Post) GetAllPosts(ctx context.Context) ([]db.Post, error) {
+func (r *Post) GetAllPosts(ctx context.Context) ([]db.GetAllPostsRow, error) {
 	return r.Queries.GetAllPosts(ctx)
 }
 
@@ -45,6 +45,6 @@ func (r *Post) DeletePost(ctx context.Context, id int64) error {
 	return r.Queries.DeletePost(ctx, id)
 }
 
-func (r *Post) GetAllPostsByUser(ctx context.Context, arg int64) ([]db.Post, error) {
+func (r *Post) GetAllPostsByUser(ctx context.Context, arg int64) ([]db.GetAllPostsByUserRow, error) {
 	return r.Queries.GetAllPostsByUser(ctx, arg)
 }
