@@ -39,7 +39,6 @@ func (s *Post) GetAllPost(ctx context.Context) ([]model.PostData, error) {
 	return postsResponse, nil
 }
 
-// TODO: ARRUMAR VALIDAÇÃO PARA NÃO CRIAR COM MESMO E-MAIL OU USER.
 func (s *Post) CreatePost(ctx context.Context, data model.PostCreateDto) (model.PostResponse, error) {
 	arg := data.ParseCreateToPost()
 	result, err := s.PostInterface.CreatePost(ctx, arg)
